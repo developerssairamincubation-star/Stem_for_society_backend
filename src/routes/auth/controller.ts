@@ -30,6 +30,7 @@ import {
   INVALID_SESSION_MSG,
 } from "../../utils/constants";
 import { eq } from "drizzle-orm";
+import { reportServerError } from "../../utils/reportError";
 
 export const registerUser: RequestHandler = async (
   req: Request,
@@ -79,6 +80,7 @@ export const registerUser: RequestHandler = async (
     }
     // Anything unrecognised really is a server fault; it used to answer 200
     // with an error body, which no client could treat as a failure.
+    reportServerError(error, "registerUser");
     res.status(500).json({
       error: "Server error in registering",
     });
@@ -144,6 +146,7 @@ export const signIn: RequestHandler = async (req: Request, res: Response) => {
     });
   } catch (error) {
     debugLog("🚀 ~ signIn ~ error:", error);
+    reportServerError(error, "signIn");
     res.status(500).json({
       error: "Server error in signing in",
     });
@@ -176,6 +179,7 @@ export const getUserInfo: RequestHandler = async (
     res.json({ ...userInfo, role: "STUDENT" });
   } catch (error) {
     debugLog("🚀 ~ getUserInfo ~ error:", error);
+    reportServerError(error, "getUserInfo");
     res.status(500).json({
       error: "Server error in obtaining user information",
     });
@@ -245,6 +249,7 @@ export const resetPassword: RequestHandler = async (req: Request, res: Response)
     res.json({ message: "Password reset successfully" });
   } catch (error) {
     debugLog("🚀 ~ resetPassword ~ error:", error);
+    reportServerError(error, "resetPassword");
     res.status(500).json({ error: "Server error in resetting password" });
   }
 };
@@ -373,7 +378,7 @@ export const googleAuth: RequestHandler = async (
 
     res.json({ data: { token, user: userAuth } });
   } catch (error) {
-    console.error("[auth] Google sign-in failed:", error);
+    reportServerError(error, "googleAuth");
     res.status(500).json({ error: "Server error in Google sign-in" });
   }
 };

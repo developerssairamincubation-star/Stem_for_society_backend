@@ -161,40 +161,63 @@ app.use("*", (req: Request, res: Response) => {
 });
 
 
-/**
- * Sentry's Express handler, registered after every route so it sees the errors
- * they throw. It only reports; the handler below still decides what the client
- * is told, so error responses are unchanged.
- */
-Sentry.setupExpressErrorHandler(app);
+const uploadMessages: Record<string, string> = {
+  LIMIT_FILE_SIZE: "That file is too large. Images must be 5 MB or smaller.",
+  LIMIT_FIELD_VALUE: "One of the fields is too long to submit.",
+  LIMIT_FILE_COUNT: "Too many files were attached.",
+  LIMIT_FIELD_COUNT: "Too many fields were submitted.",
+  LIMIT_UNEXPECTED_FILE: "An unexpected file was attached.",
+};
 
-// Global error handler
-app.use((err: any, req: Request, res: Response, next: any) => {
+/**
+ * Errors the caller caused, mapped to the response they get. These are refused
+ * on purpose rather than server faults, so they are answered here and kept out
+ * of Sentry. Returns undefined for anything else.
+ */
+function clientFaultResponse(
+  err: any,
+): { status: number; error: string } | undefined {
   // A blocked cross-origin request is a deliberate refusal, not a server fault.
   if (err?.message === CORS_DENIED) {
-    res.status(403).json({ error: "Origin not allowed" });
-    return;
+    return { status: 403, error: "Origin not allowed" };
   }
-
   /**
    * Upload failures are the caller's to fix, not server faults. Multer raises
    * these after the request body is parsed, so without this they reached the
    * catch-all below and came back as an opaque 500 - which is what an author
    * saw after writing an entire article and attaching a photo from a phone.
    */
-  const uploadMessages: Record<string, string> = {
-    LIMIT_FILE_SIZE: "That file is too large. Images must be 5 MB or smaller.",
-    LIMIT_FIELD_VALUE: "One of the fields is too long to submit.",
-    LIMIT_FILE_COUNT: "Too many files were attached.",
-    LIMIT_FIELD_COUNT: "Too many fields were submitted.",
-    LIMIT_UNEXPECTED_FILE: "An unexpected file was attached.",
-  };
   if (err?.code && uploadMessages[err.code]) {
-    res.status(400).json({ error: uploadMessages[err.code] });
-    return;
+    return { status: 400, error: uploadMessages[err.code] };
   }
   if (err?.name === "UnsupportedImageType") {
-    res.status(400).json({ error: err.message });
+    return { status: 400, error: err.message };
+  }
+  return undefined;
+}
+
+/**
+ * Sentry's Express handler, registered after every route so it sees the errors
+ * they throw. It only reports; the handler below still decides what the client
+ * is told, so error responses are unchanged.
+ *
+ * Sentry's default reports any error that carries no status below 500, which
+ * included every CORS refusal and upload-limit error above. Otherwise this is
+ * the same rule as the default.
+ */
+Sentry.setupExpressErrorHandler(app, {
+  shouldHandleError(err) {
+    if (clientFaultResponse(err)) return false;
+    const status = err.status || err.statusCode || err.status_code || err.output?.statusCode;
+    return status ? parseInt(String(status), 10) >= 500 : true;
+  },
+});
+
+// Global error handler
+app.use((err: any, req: Request, res: Response, next: any) => {
+  const clientFault = clientFaultResponse(err);
+  if (clientFault) {
+    res.status(clientFault.status).json({ error: clientFault.error });
     return;
   }
 

@@ -8,6 +8,7 @@ import { trainingTable } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { approveTrainingSchema } from "./validation";
 import { sendTrainingCancellationNotice } from "../email/controller";
+import { reportServerError } from "../../utils/reportError";
 
 export const getTrainings: RequestHandler = async (
   req: Request,
@@ -49,6 +50,7 @@ export const getTrainings: RequestHandler = async (
     res.json({ data: trainings });
   } catch (error) {
     debugLog("🚀 ~ getTrainings ~ error:", error);
+    reportServerError(error, "getTrainings");
     res.status(500).json({
       error: "Server error in fetching training details",
     });
@@ -120,6 +122,7 @@ export const getTraining: RequestHandler = async (
     res.json({ data: training ?? {} });
   } catch (error) {
     debugLog("🚀 ~ getTrainings ~ error:", error);
+    reportServerError(error, "getTraining");
     res.status(500).json({
       error: "Server error in fetching training details",
     });
@@ -256,6 +259,7 @@ export const approveTraining: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ approveTraining ~ error:", error);
+    reportServerError(error, "approveTraining");
     res.status(500).json({
       error: "Server error in approving training",
     });

@@ -295,6 +295,10 @@ import { supabase, SUPABASE_PROJECT_URL } from "../../supabase";
 import { safeContentType } from "../../utils/upload";
 import { nanoid } from "nanoid";
 import { z } from "zod";
+import {
+  reportServerError,
+  wrapReturnedError,
+} from "../../utils/reportError";
 
 export const getHomeStatistics: RequestHandler = async (
   req: Request,
@@ -358,6 +362,7 @@ export const getHomeStatistics: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ getHomeStatistics ~ error:", error);
+    reportServerError(error, "getHomeStatistics");
     res.status(500).json({
       error: "Server error in fetching statistics",
     });
@@ -436,6 +441,7 @@ export const getProfileDetails: RequestHandler = async (
     res.json({ data: { ...rest, account: maskedAccount } });
   } catch (error) {
     debugLog("🚀 ~ getProfileDetails ~ error:", error);
+    reportServerError(error, "getProfileDetails");
     res.status(500).json({
       error: "Server error in getting profile details",
     });
@@ -525,6 +531,7 @@ export const saveAccountDetails: RequestHandler = async (
         .json({ error: error.error.description });
       return;
     }
+    reportServerError(error, "saveAccountDetails");
     res.status(500).json({
       error: "Server error in saving account details",
     });
@@ -593,7 +600,7 @@ export const savePartnerProfile: RequestHandler = async (
         );
 
       if (logoError) {
-        console.log("Logo upload error:", logoError);
+        reportServerError(wrapReturnedError(logoError, "Logo upload failed"), "savePartnerProfile");
         res.status(500).json({
           error: "Something went wrong when uploading logo",
         });
@@ -629,7 +636,7 @@ export const savePartnerProfile: RequestHandler = async (
         );
 
       if (signError) {
-        console.log("Digital signature upload error:", signError);
+        reportServerError(wrapReturnedError(signError, "Digital signature upload failed"), "savePartnerProfile");
         res.status(500).json({
           error: "Something went wrong when uploading digital signature",
         });
@@ -685,6 +692,7 @@ export const savePartnerProfile: RequestHandler = async (
     res.json({ message: "Profile details saved successfully!" });
   } catch (error) {
     debugLog("🚀 ~ savePartnerProfile ~ error:", error);
+    reportServerError(error, "savePartnerProfile");
     res.status(500).json({
       error: "Server error in saving user profile",
     });

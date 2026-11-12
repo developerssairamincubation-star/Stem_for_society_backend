@@ -17,6 +17,7 @@ import { razorpay, RZPY_WH_SECRET, RAZORPAY_KEYSEC } from "../../razporpay"; // 
 import { INVALID_SESSION_MSG } from "../../utils/constants";
 import { createValidationError } from "../../utils/validation";
 import { partialRzpyWebhookSchema } from "./validation";
+import { reportServerError } from "../../utils/reportError";
 
 export const createPayment: RequestHandler = async (
   req: Request,
@@ -158,6 +159,7 @@ export const createPayment: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ createPayment ~ error:", error);
+    reportServerError(error, "createPayment");
     res.status(500).json({
       error: "Server error in creating payment",
     });
@@ -657,6 +659,7 @@ export const verifyPayment: RequestHandler = async (
     res.json({ success: true });
   } catch (error) {
     debugLog("🚀 ~ verifyPayment ~ error:", error);
+    reportServerError(error, "verifyPayment");
     res.status(500).json({
       error: "Server error in verifying payment",
     });
@@ -721,6 +724,7 @@ export const getPaymentStatus: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ getPaymentStatus ~ error:", error);
+    reportServerError(error, "getPaymentStatus");
     res.status(500).json({
       error: "Server error in fetching payment status",
     });
@@ -847,6 +851,7 @@ export const verifyClientPayment: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ verifyClientPayment ~ error:", error);
+    reportServerError(error, "verifyClientPayment");
     res.status(500).json({
       error: "Server error in payment verification",
     });
@@ -929,6 +934,7 @@ export const verifyClientEnquiryPayment: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ verifyClientEnquiryPayment ~ error:", error);
+    reportServerError(error, "verifyClientEnquiryPayment");
     res.status(500).json({ error: "Server error in payment verification" });
   }
 };

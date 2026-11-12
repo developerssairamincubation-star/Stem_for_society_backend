@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { debugLog } from "./utils/logger";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { INVALID_SESSION_MSG } from "./utils/constants";
@@ -14,6 +15,17 @@ if (!JWT_SECRET_STU || !JWT_SECRET_AD || !JWT_SECRET_PT)
   throw new Error("Incorrectly configured variables. Contact developer!");
 
 export { JWT_SECRET_AD, JWT_SECRET_PT, JWT_SECRET_STU };
+
+/**
+ * Tags this request's Sentry events with who made it. Id and role only - the
+ * token also carries name, email and mobile, none of which may leave the
+ * process. Sentry scopes this to the current request, and it does nothing
+ * when Sentry is disabled.
+ */
+function identifyForSentry(id: string, role: typeof authRoleEnum._type) {
+  Sentry.setUser({ id });
+  Sentry.setTag("user.role", role);
+}
 
 /**
  * Each role verifies against its own secret, which is what stops a token
@@ -48,6 +60,7 @@ export const requireAnyAuthToken: RequestHandler = async (req, res, next) => {
         req.auth = req.auth ?? {};
         // @ts-expect-error same shape as requireAuthToken
         req.auth[role] = { ...jwtParsed.data, role };
+        identifyForSentry(jwtParsed.data.id, role);
         next();
         return;
       } catch {
@@ -86,6 +99,7 @@ export const requireAuthToken: (
       req.auth = req.auth ?? {};
       // @ts-expect-error bicj
       req.auth[role] = { ...jwtParsed.data, role };
+      identifyForSentry(jwtParsed.data.id, role);
       next();
       return;
     } catch (error) {

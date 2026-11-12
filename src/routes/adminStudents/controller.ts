@@ -3,6 +3,7 @@ import { Request, RequestHandler, Response } from "express";
 import { INVALID_SESSION_MSG } from "../../utils/constants";
 import { db } from "../../db/connection";
 import { z } from "zod";
+import { reportServerError } from "../../utils/reportError";
 
 export const getAdminStudents: RequestHandler = async (
   req: Request,
@@ -27,6 +28,7 @@ export const getAdminStudents: RequestHandler = async (
     res.json({ data: students });
   } catch (error) {
     debugLog("🚀 ~ getAdminStudents ~ error:", error);
+    reportServerError(error, "getAdminStudents");
     res.status(500).json({
       error: "Server error in fetching student details",
     });
@@ -74,6 +76,7 @@ export const getAdminStudent: RequestHandler = async (
     res.json({ data: student ?? {} });
   } catch (error) {
     debugLog("🚀 ~ getAdminStudents ~ error:", error);
+    reportServerError(error, "getAdminStudent");
     res.status(500).json({
       error: "Server error in fetching student details",
     });

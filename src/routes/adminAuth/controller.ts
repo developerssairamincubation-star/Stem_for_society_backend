@@ -11,6 +11,7 @@ import { signJWT } from "../../utils/jwt";
 import { fakeVerifyPassword, verifyPassword } from "../../utils/password";
 import { authRoleEnum, createValidationError } from "../../utils/validation";
 import { signInUserSchema } from "./validation";
+import { reportServerError } from "../../utils/reportError";
 
 export const registerUser: RequestHandler = async (
   req: Request,
@@ -133,6 +134,7 @@ export const signIn: RequestHandler = async (req: Request, res: Response) => {
     });
   } catch (error) {
     debugLog("🚀 ~ signIn ~ error:", error);
+    reportServerError(error, "signIn");
     res.status(500).json({
       error: "Server error in signing in",
     });
@@ -165,6 +167,7 @@ export const getUserInfo: RequestHandler = async (
     res.json({ ...userInfo, role: "ADMIN" });
   } catch (error) {
     debugLog("🚀 ~ getUserInfo ~ error:", error);
+    reportServerError(error, "getUserInfo");
     res.status(500).json({
       error: "Server error in obtaining user information",
     });

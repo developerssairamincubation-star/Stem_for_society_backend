@@ -11,6 +11,10 @@ import { nanoid } from "nanoid";
 import { trainingEnrolmentTable } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { generateCertificate } from "../../utils/pdf";
+import {
+  reportServerError,
+  wrapReturnedError,
+} from "../../utils/reportError";
 
 // Add this helper function at the top of the file
 const formatDateToString = (date: Date | null): string => {
@@ -54,6 +58,7 @@ export const getTrainings: RequestHandler = async (
     res.json({ data: trainings });
   } catch (error) {
     debugLog("🚀 ~ getTrainings ~ error:", error);
+    reportServerError(error, "getTrainings");
     res.status(500).json({
       error: "Server error in fetching training details",
     });
@@ -120,6 +125,7 @@ export const getTraining: RequestHandler = async (
     res.json({ data: training ?? {} });
   } catch (error) {
     debugLog("🚀 ~ getTrainings ~ error:", error);
+    reportServerError(error, "getTraining");
     res.status(500).json({
       error: "Server error in fetching training details",
     });
@@ -191,6 +197,7 @@ export const createTraining: RequestHandler = async (
 
       if (error) {
         debugLog("🚀 ~ createTraining ~ supabase upload error:", error);
+        reportServerError(wrapReturnedError(error, "Cover upload failed"), "createTraining");
         res.status(500).json({
           error: "Server error in uploading file!",
         });
@@ -243,6 +250,7 @@ export const createTraining: RequestHandler = async (
     res.json({ message: "Course module created successfully!" });
   } catch (error) {
     debugLog("🚀 ~ createTraining ~ error:", error);
+    reportServerError(error, "createTraining");
     res.status(500).json({
       error: "Server error in creating training course",
     });
@@ -318,6 +326,7 @@ export const updateTraining: RequestHandler = async (
 
       if (error) {
         debugLog("🚀 ~ updateTraining ~ supabase upload error:", error);
+        reportServerError(wrapReturnedError(error, "Cover upload failed"), "updateTraining");
         res.status(500).json({
           error: "Server error in uploading profile file!",
         });
@@ -349,6 +358,7 @@ export const updateTraining: RequestHandler = async (
     res.json({ message: "Training updated successfully!" });
   } catch (error) {
     debugLog("🚀 ~ updateTraining ~ error:", error);
+    reportServerError(error, "updateTraining");
     res.status(500).json({
       error: "Server error in updating training",
     });
@@ -412,6 +422,7 @@ export const deleteTraining: RequestHandler = async (
     res.json({ message: "Training deleted successfully!" });
   } catch (error) {
     debugLog("🚀 ~ deleteTraining ~ error:", error);
+    reportServerError(error, "deleteTraining");
     res.status(500).json({
       error: "Server error in deleting training",
     });
@@ -687,6 +698,7 @@ export const generateCertificates: RequestHandler = async (
     return;
   } catch (error) {
     debugLog("🚀 ~ generateCertificates ~ error:", error);
+    reportServerError(error, "generateCertificates");
     res.status(500).json({
       error: "Server error in generating certificates",
     });

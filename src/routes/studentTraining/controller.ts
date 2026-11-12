@@ -12,6 +12,7 @@ import {
   transactionTable,
 } from "../../db/schema";
 import { nanoid } from "nanoid";
+import { reportServerError } from "../../utils/reportError";
 
 export const getTrainings: RequestHandler = async (
   req: Request,
@@ -66,6 +67,7 @@ export const getTrainings: RequestHandler = async (
     res.json({ data: trainings });
   } catch (error) {
     debugLog("🚀 ~ getTrainings ~ error:", error);
+    reportServerError(error, "getTrainings");
     res.status(500).json({
       error: "Server error in fetching training details",
     });
@@ -133,6 +135,7 @@ export const getskillDevelopments: RequestHandler = async (
     res.json({ data: trainings });
   } catch (error) {
     debugLog("🚀 ~ getTrainings ~ error:", error);
+    reportServerError(error, "getskillDevelopments");
     res.status(500).json({
       error: "Server error in fetching training details",
     });
@@ -200,6 +203,7 @@ export const getFinishingSchools: RequestHandler = async (
     res.json({ data: trainings });
   } catch (error) {
     debugLog("🚀 ~ getTrainings ~ error:", error);
+    reportServerError(error, "getFinishingSchools");
     res.status(500).json({
       error: "Server error in fetching training details",
     });
@@ -327,6 +331,7 @@ export const getTraining: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ getTraining ~ error:", error);
+    reportServerError(error, "getTraining");
     res.status(500).json({
       error: "Server error in fetching training details",
     });
@@ -418,6 +423,7 @@ export const captureFeedback: RequestHandler = async (
     res.json({ message: "Feedback was shared successfully!" });
   } catch (error) {
     debugLog("🚀 ~ captureFeedback ~ error:", error);
+    reportServerError(error, "captureFeedback");
     res.status(500).json({
       error: "Server error in saving feedback",
     });
@@ -532,6 +538,7 @@ export const enrolFreeTraining: RequestHandler = async (
     res.json({ data: { message: "Enrolled successfully" } });
   } catch (error) {
     debugLog("🚀 ~ enrolFreeTraining ~ error:", error);
+    reportServerError(error, "enrolFreeTraining");
     res.status(500).json({ error: "Server error in enrolling" });
   }
 };

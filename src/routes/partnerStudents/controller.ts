@@ -8,6 +8,7 @@ import {
   userTable,
 } from "../../db/schema";
 import { eq, inArray, sql } from "drizzle-orm";
+import { reportServerError } from "../../utils/reportError";
 
 export const getStudents: RequestHandler = async (
   req: Request,
@@ -59,6 +60,7 @@ export const getStudents: RequestHandler = async (
     res.json({ data: students });
   } catch (error) {
     debugLog("🚀 ~ getStudents ~ error:", error);
+    reportServerError(error, "getStudents");
     res.status(500).json({
       error: "Server error in fetching student details",
     });

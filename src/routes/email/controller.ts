@@ -13,6 +13,7 @@ import {
   resolveVerifiedPayment,
 } from "../../utils/verifiedPayment";
 import { emailEquals, normaliseEmail } from "../../utils/email";
+import { reportServerError } from "../../utils/reportError";
 
 const email = process.env.EMAIL;
 const pass = process.env.APP_PASS;
@@ -376,7 +377,7 @@ export const sendOTP: RequestHandler = async (req: Request, res: Response) => {
         console.log("Institution registration OTP sent successfully");
         
     } catch (error) {
-        console.error("Error sending OTP:", error);
+        reportServerError(error, "sendOTP");
         res.status(500).json({ error: "Failed to send OTP" });
         return;
     }
@@ -483,7 +484,7 @@ export const sendOTPReset: RequestHandler = async (req: Request, res: Response) 
         console.log("Password reset OTP sent successfully");
         
     } catch (error) {
-        console.error("Error sending OTP:", error);
+        reportServerError(error, "sendOTPReset");
         res.status(500).json({ error: "Failed to send OTP" });
         return;
     }
@@ -656,7 +657,7 @@ export const verifyOTP: RequestHandler = async (req: Request, res: Response) => 
         res.json({ message: "OTP verified successfully", resetToken });
         
     } catch (error) {
-        console.error("Error verifying OTP:", error);
+        reportServerError(error, "verifyOTP");
         res.status(500).json({ error: "Failed to verify OTP" });
         return;
     }
@@ -749,7 +750,7 @@ export const sendCourseRegistrationEmail: RequestHandler = async (req: Request, 
         }
         
     } catch (error) {
-        console.error("Error sending course registration email:", error);
+        reportServerError(error, "sendCourseRegistrationEmail");
         res.status(500).json({ error: "Failed to send course registration email" });
     }
 };
@@ -823,7 +824,7 @@ export const sendInstitutionPartnershipEmail: RequestHandler = async (req: Reque
         console.log(`Institution partnership email sent to ${verified.email}`);
         
     } catch (error) {
-        console.error("Error sending institution partnership email:", error);
+        reportServerError(error, "sendInstitutionPartnershipEmail");
         res.status(500).json({ error: "Failed to send institution partnership email" });
     }
 };
@@ -893,7 +894,7 @@ export const sendGeneralPaymentEmail: RequestHandler = async (req: Request, res:
         console.log(`General payment email sent to ${verified.email}`);
         
     } catch (error) {
-        console.error("Error sending general payment email:", error);
+        reportServerError(error, "sendGeneralPaymentEmail");
         res.status(500).json({ error: "Failed to send general payment email" });
     }
 };

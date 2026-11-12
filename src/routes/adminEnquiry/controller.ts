@@ -2,6 +2,7 @@ import { debugLog } from "../../utils/logger";
 import { Request, RequestHandler, Response } from "express";
 import { db } from "../../db/connection";
 import { INVALID_SESSION_MSG } from "../../utils/constants";
+import { reportServerError } from "../../utils/reportError";
 
 /** Individual enquiries submitted through /enquiry/ind_inst. */
 export const getIndividualTrainings: RequestHandler = async (
@@ -39,6 +40,7 @@ export const getIndividualTrainings: RequestHandler = async (
     res.json({ data: individualEnquiries });
   } catch (error) {
     debugLog("🚀 ~ getIndividualTrainings ~ error:", error);
+    reportServerError(error, "getIndividualTrainings");
     res.status(500).json({
       error: "Server error in fetching individual enquiry details",
     });
@@ -81,6 +83,7 @@ export const getInstitutionPlanBookings: RequestHandler = async (
     res.json({ data: planBookings });
   } catch (error) {
     debugLog("🚀 ~ getInstitutionPlanBookings ~ error:", error);
+    reportServerError(error, "getInstitutionPlanBookings");
     res.status(500).json({
       error: "Server error in fetching institution plan bookings",
     });
@@ -108,6 +111,7 @@ export const getCAApplications: RequestHandler = async (
     res.json({ data: caApplications });
   } catch (error) {
     debugLog("🚀 ~ getCAApplications ~ error:", error);
+    reportServerError(error, "getCAApplications");
     res.status(500).json({
       error: "Server error in fetching campus ambassador application details",
     });
@@ -148,6 +152,7 @@ export const getInstitutionRegistrations: RequestHandler = async (
     res.json({ data: insitutionRegistrations });
   } catch (error) {
     debugLog("🚀 ~ getInstitutionRegistrations ~ error:", error);
+    reportServerError(error, "getInstitutionRegistrations");
     res.status(500).json({
       error: "Server error in fetching institution registration details",
     });

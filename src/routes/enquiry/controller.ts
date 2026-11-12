@@ -20,6 +20,7 @@ import {
 import { nanoid } from "nanoid";
 import { razorpay } from "../../razporpay";
 import { supabase, SUPABASE_PROJECT_URL } from "../../supabase";
+import { reportServerError } from "../../utils/reportError";
 
 // Helper function to format date to string
 const formatDateToString = (date: Date | string | null | undefined): string | null => {
@@ -130,6 +131,7 @@ debugLog("🚀 ~ individualOrInstitutionRegistration ~ InstitutionOrIndividual:"
     });
   } catch (error) {
     debugLog("🚀 ~ enrollIndInst ~ error:", error);
+    reportServerError(error, "individualOrInstitutionRegistration");
     res.status(500).json({
       success: false,
       error: "Server error in registering !",
@@ -244,6 +246,7 @@ export const createInsitutitionRegistration: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ createInsitutitionRegistration ~ error:", error);
+    reportServerError(error, "createInsitutitionRegistration");
     res.status(500).json({
       success: false,
       error: "Server error in registering for plan!",
@@ -287,6 +290,7 @@ export const campusAmbassadorRegistration: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ campusAmbassadorRegistration ~ error:", error);
+    reportServerError(error, "campusAmbassadorRegistration");
     res.status(500).json({
       success: false,
       error: "Server error in registering for campus ambassador!",

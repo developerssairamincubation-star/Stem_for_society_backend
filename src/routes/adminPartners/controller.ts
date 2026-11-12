@@ -7,6 +7,7 @@ import { instructorTable } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { PartnerPayoutEligibilityStatus } from "../../utils/types";
 import { razorpay } from "../../razporpay";
+import { reportServerError } from "../../utils/reportError";
 
 export const getAdminPartners: RequestHandler = async (
   req: Request,
@@ -41,6 +42,7 @@ export const getAdminPartners: RequestHandler = async (
     res.json({ data: partners });
   } catch (error) {
     debugLog("🚀 ~ getAdminPartners ~ error:", error);
+    reportServerError(error, "getAdminPartners");
     res.status(500).json({
       error: "Server error in fetching partner details",
     });
@@ -113,6 +115,7 @@ export const getAdminPartner: RequestHandler = async (
     res.json({ data: { ...partner, payoutEligibility } });
   } catch (error) {
     debugLog("🚀 ~ getAdminPartners ~ error:", error);
+    reportServerError(error, "getAdminPartner");
     res.status(500).json({
       error: "Server error in fetching partner details",
     });
@@ -162,6 +165,7 @@ export const approvePartner: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ approvePartner ~ error:", error);
+    reportServerError(error, "approvePartner");
     res.status(500).json({
       error: "Server error in approving partner",
     });
@@ -214,6 +218,7 @@ export const verifyPartnerAccount: RequestHandler = async (
     res.json({ message: "Verified successfully!" });
   } catch (error) {
     debugLog("🚀 ~ verifyPartnerAccount ~ error:", error);
+    reportServerError(error, "verifyPartnerAccount");
     res.status(500).json({
       error: "Server error in verifying account details",
     });

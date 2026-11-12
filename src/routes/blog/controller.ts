@@ -9,6 +9,10 @@ import { nanoid } from "nanoid";
 import { supabase, SUPABASE_PROJECT_URL } from "../../supabase";
 import { INVALID_SESSION_MSG } from "../../utils/constants";
 import { eq, sql } from "drizzle-orm";
+import {
+  reportServerError,
+  wrapReturnedError,
+} from "../../utils/reportError";
 
 export const getBlogs: RequestHandler = async (req: Request, res: Response) => {
   try {
@@ -40,6 +44,7 @@ export const getBlogs: RequestHandler = async (req: Request, res: Response) => {
     res.json({ data: blogs });
   } catch (error) {
     debugLog("🚀 ~ getBlogs ~ error:", error);
+    reportServerError(error, "getBlogs");
     res.status(500).json({
       error: "Server error in fetching blogs",
     });
@@ -95,6 +100,7 @@ export const getBlog: RequestHandler = async (req: Request, res: Response) => {
     res.json({ data: blog });
   } catch (error) {
     debugLog("🚀 ~ getBlogs ~ error:", error);
+    reportServerError(error, "getBlog");
     res.status(500).json({
       error: "Server error in fetching blog",
     });
@@ -163,6 +169,7 @@ export const createBlog: RequestHandler = async (
         { upsert: true },
       );
     if (error) {
+      reportServerError(wrapReturnedError(error, "Cover image upload failed"), "createBlog");
       res.status(500).json({
         error: "Something went wrong when uploading cover image",
       });
@@ -205,6 +212,7 @@ export const createBlog: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ createBlog ~ error:", error);
+    reportServerError(error, "createBlog");
     res.status(500).json({
       error: "Server error in creating blog",
     });
@@ -267,6 +275,7 @@ export const approveBlog: RequestHandler = async (
     });
   } catch (error) {
     debugLog("🚀 ~ approveBlog ~ error:", error);
+    reportServerError(error, "approveBlog");
     res.status(500).json({
       error: "Server error in approving blog",
     });

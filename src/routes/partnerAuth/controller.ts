@@ -26,6 +26,10 @@ import { razorpay } from "../../razporpay";
 import { supabase, SUPABASE_PROJECT_URL } from "../../supabase";
 import { safeContentType } from "../../utils/upload";
 import { nanoid } from "nanoid";
+import {
+  reportServerError,
+  wrapReturnedError,
+} from "../../utils/reportError";
 
 export const registerUser: RequestHandler = async (
   req: Request,
@@ -105,7 +109,7 @@ export const registerUser: RequestHandler = async (
         );
 
       if (logoError) {
-        console.log("Logo upload error:", logoError);
+        reportServerError(wrapReturnedError(logoError, "Logo upload failed"), "registerUser");
         res.status(500).json({
           error: "Something went wrong when uploading logo",
         });
@@ -131,7 +135,7 @@ export const registerUser: RequestHandler = async (
         );
 
       if (signError) {
-        console.log("Digital signature upload error:", signError);
+        reportServerError(wrapReturnedError(signError, "Digital signature upload failed"), "registerUser");
         res.status(500).json({
           error: "Something went wrong when uploading digital signature",
         });
@@ -247,6 +251,7 @@ export const registerUser: RequestHandler = async (
     // The error object was concatenated into the response, which shipped
     // driver internals (and on a constraint violation, the offending values)
     // straight to the caller. It is logged above; the client gets the fact.
+    reportServerError(error, "registerUser");
     res.status(500).json({
       error: "Server error in registering instructor",
     });
@@ -315,6 +320,7 @@ export const signIn: RequestHandler = async (req: Request, res: Response) => {
     });
   } catch (error) {
     debugLog("🚀 ~ signIn ~ error:", error);
+    reportServerError(error, "signIn");
     res.status(500).json({
       error: "Server error in signing in",
     });
@@ -347,6 +353,7 @@ export const getUserInfo: RequestHandler = async (
     res.json({ ...userInfo, role: "PARTNER" });
   } catch (error) {
     debugLog("🚀 ~ getUserInfo ~ error:", error);
+    reportServerError(error, "getUserInfo");
     res.status(500).json({
       error: "Server error in obtaining user information",
     });
